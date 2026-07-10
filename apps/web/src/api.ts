@@ -1,4 +1,4 @@
-import type { Pessoa } from "./types";
+import type { Pessoa, Transacao } from "./types";
 //TotaisResponse, Transacao 
 const API_URL = "http://localhost:5044";
 
@@ -48,4 +48,25 @@ export async function deletarPessoa(id: number): Promise<void> {
   }
 }
 
+export async function listarTransacoes(): Promise<Transacao[]> {
+  const response = await fetch(`${API_URL}/transacoes`);
+  return tratarResposta<Transacao[]>(response);
+}
+
+export async function criarTransacao(dados: {
+  descricao: string;
+  valor: number;
+  tipo: "RECEITA" | "DESPESA";
+  pessoaId: number;
+}): Promise<Transacao> {
+  const response = await fetch(`${API_URL}/transacoes`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dados),
+  });
+
+  return tratarResposta<Transacao>(response);
+}
 
