@@ -6,31 +6,35 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-//adicionar informacao para o .net caso um endpoint precise do db
-builder.Services.AddDbContext<AppDbContexto>(options =>
-{
-    //postgree
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+builder.Services.AddDbContext<AppDbContexto>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseCors("FrontendPolicy");
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 //app.UseHttpsRedirection();
 
@@ -92,7 +96,7 @@ app.MapPost("/pessoas", async (CriarPessoaDTO dto, AppDbContexto db) =>{
 });
 
 //DELETE PESSOA
-app.MapDelete("/pessoa/{id:int}", async (int id, AppDbContexto db) =>
+app.MapDelete("/pessoas/{id:int}", async (int id, AppDbContexto db) =>
 {
     var pessoa = await db.Pessoas.FindAsync(id);
     if (pessoa is null)
@@ -224,24 +228,24 @@ app.MapGet("/totais", async (AppDbContexto db) =>
     {
         var transacoesPessoa = transacoes.Where(transacao => transacao.PessoaID == pessoa.ID);
 
-        var totalreceita = transacoesPessoa.Where(transacao => transacao.Tipo == TipoDeTransacao.Receita).Sum(transacao => transacao.Valor);
+        var totalReceitas = transacoesPessoa.Where(transacao => transacao.Tipo == TipoDeTransacao.Receita).Sum(transacao => transacao.Valor);
 
-        var totaldespesa = transacoesPessoa.Where(transacao => transacao.Tipo == TipoDeTransacao.Despesa).Sum(transacao => transacao.Valor);
+        var totalDespesas = transacoesPessoa.Where(transacao => transacao.Tipo == TipoDeTransacao.Despesa).Sum(transacao => transacao.Valor);
 
         return new PessoaTotalDTO
         {
             PessoaID = pessoa.ID,
             Nome = pessoa.Nome,
-            TotalReceita = totalreceita,
-            TotalDespesa = totaldespesa
+            TotalReceitas = totalReceitas,
+            TotalDespesas = totalDespesas
         };
     })
     .ToList();
 
     var TotalGeral = new TotalGeralDTO
     {
-        TotalReceitas = totaisPorPessoa.Sum(pessoa => pessoa.TotalReceita),
-        TotalDespesas = totaisPorPessoa.Sum(pessoa => pessoa.TotalDespesa)
+        TotalReceitas = totaisPorPessoa.Sum(pessoa => pessoa.TotalReceitas),
+        TotalDespesas = totaisPorPessoa.Sum(pessoa => pessoa.TotalDespesas)
     };
 
     var resposta = new TotalDTO

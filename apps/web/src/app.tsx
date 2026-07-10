@@ -1,0 +1,338 @@
+import { useEffect, useState } from "react";
+import {
+  buscarTotais,
+  criarPessoa,
+  criarTransacao,
+  deletarPessoa,
+  listarPessoas,
+  listarTransacoes,
+} from "./api";
+import type { Pessoa, TotaisResponse, Transacao } from "./types";
+
+function App() {
+  const [pessoas, setPessoas] = useState<Pessoa[]>([]);
+  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
+  const [totais, setTotais] = useState<TotaisResponse | null>(null);
+  const [descricao, setDescricao] = useState("");
+  const [valor, setValor] = useState("");
+  const [tipo, setTipo] = useState<"Receita" | "Despesa">("Despesa");
+  const [pessoaID, setPessoaID] = useState("");
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  const [nome, setNome] = useState("");
+  const [idade, setIdade] = useState("");
+
+  async function carregarPessoas(mostrarCarregamento = true) {
+    try {
+      if (mostrarCarregamento) {
+        setCarregando(true);
+      }
+  
+      const dados = await listarPessoas();
+  
+      setPessoas(dados);
+      setErro("");
+    } catch (error) {
+      if (error instanceof Error) {
+        setErro(error.message);
+      } else {
+        setErro("Erro inesperado ao carregar pessoas.");
+      }
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function cadastrarPessoa(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    try {
+      setErro("");
+
+      await criarPessoa({
+        nome,
+        idade: Number(idade),
+      });
+
+      setNome("");
+      setIdade("");
+
+      await carregarPessoas();
+    } catch (error) {
+      if (error instanceof Error) {
+        setErro(error.message);
+      } else {
+        setErro("Erro inesperado ao cadastrar pessoa.");
+      }
+    }
+  }
+
+  useEffect(() => {
+    carregarPessoas();
+    carregarTransacoes();
+    carregarTotais();
+  }, []);
+
+  async function removerPessoa(id: number) {
+    const confirmou = window.confirm(
+      "Tem certeza que deseja deletar esta pessoa? As transações dela também serão removidas."
+    );
+  
+    if (!confirmou) {
+      return;
+    }
+  
+    try {
+      setErro("");
+  
+      await deletarPessoa(id);
+  
+      await carregarPessoas();
+      await carregarTransacoes();
+      await carregarTotais();
+
+    } catch (error) {
+      if (error instanceof Error) {
+        setErro(error.message);
+      } else {
+        setErro("Erro inesperado ao deletar pessoa.");
+      }
+    }
+  }
+
+  async function carregarTransacoes() {
+    try {
+      setErro("");
+  
+      const dados = await listarTransacoes();
+  
+      setTransacoes(dados);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErro(error.message);
+      } else {
+        setErro("Erro inesperado ao carregar transações.");
+      }
+    }
+  }
+
+  async function cadastrarTransacao(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+  
+    if (!pessoaID) {
+      setErro("Selecione uma pessoa para cadastrar a transação.");
+      return;
+    }
+  
+    try {
+      setErro("");
+  
+      await criarTransacao({
+        descricao,
+        valor: Number(valor),
+        tipo,
+        pessoaID: Number(pessoaID),
+      });
+  
+      setDescricao("");
+      setValor("");
+      setTipo("Despesa");
+      setPessoaID("");
+  
+      await carregarTransacoes();
+      await carregarTotais();
+    } catch (error) {
+      if (error instanceof Error) {
+        setErro(error.message);
+      } else {
+        setErro("Erro inesperado ao cadastrar transação.");
+      }
+    }
+  }
+
+  async function carregarTotais() {
+    try {
+      setErro("");
+  
+      const dados = await buscarTotais();
+  
+      setTotais(dados);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErro(error.message);
+      } else {
+        setErro("Erro inesperado ao carregar totais.");
+      }
+    }
+  }
+  
+  return (
+    <main>
+      <h1>Controle de Gastos Residenciais</h1>
+
+      <section>
+        <h2>Cadastrar pessoa</h2>
+
+        <form onSubmit={cadastrarPessoa}>
+          <div>
+            <label htmlFor="nome">Nome</label>
+            <input
+              id="nome"
+              type="text"
+              value={nome}
+              onChange={(event) => setNome(event.target.value)}
+              placeholder="Ex: Ana"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="idade">Idade</label>
+            <input
+              id="idade"
+              type="number"
+              value={idade}
+              onChange={(event) => setIdade(event.target.value)}
+              placeholder="Ex: 22"
+            />
+          </div>
+
+          <button type="submit">Cadastrar pessoa</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Cadastrar transação</h2>
+
+        <form onSubmit={cadastrarTransacao}>
+          <div>
+            <label htmlFor="descricao">Descrição</label>
+            <input
+              id="descricao"
+              type="text"
+              value={descricao}
+              onChange={(event) => setDescricao(event.target.value)}
+              placeholder="Ex: Mercado"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="valor">Valor</label>
+            <input
+              id="valor"
+              type="number"
+              value={valor}
+              onChange={(event) => setValor(event.target.value)}
+              placeholder="Ex: 250"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="tipo">Tipo</label>
+            <select
+              id="tipo"
+              value={tipo}
+              onChange={(event) =>
+                setTipo(event.target.value as "Receita" | "Despesa")
+              }
+            >
+              <option value="Despesa">Despesa</option>
+              <option value="Receita">Receita</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="pessoaID">Pessoa</label>
+            <select
+              id="pessoaID"
+              value={pessoaID}
+              onChange={(event) => setPessoaID(event.target.value)}
+            >
+              <option value="">Selecione uma pessoa</option>
+
+              {pessoas.map((pessoa) => (
+                <option key={pessoa.id} value={pessoa.id}>
+                  {pessoa.nome} — {pessoa.idade} anos
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button type="submit">Cadastrar transação</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Pessoas cadastradas</h2>
+
+        {carregando && <p>Carregando pessoas...</p>}
+
+        {erro && <p>{erro}</p>}
+
+        {!carregando && !erro && pessoas.length === 0 && (
+          <p>Nenhuma pessoa cadastrada.</p>
+        )}
+
+        {!carregando && !erro && pessoas.length > 0 && (
+          <ul>
+            {pessoas.map((pessoa) => (
+              <li key={pessoa.id}>
+                {pessoa.nome} — {pessoa.idade} anos{" "}
+                <button type="button" onClick={() => removerPessoa(pessoa.id)}>
+                  Deletar
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section>
+        <h2>Transações cadastradas</h2>
+
+        {transacoes.length === 0 && <p>Nenhuma transação cadastrada.</p>}
+
+        {transacoes.length > 0 && (
+          <ul>
+            {transacoes.map((transacao) => (
+              <li key={transacao.id}>
+                {transacao.descricao} — {transacao.tipo} — R$ {transacao.valor} —{" "}
+                {transacao.pessoa?.nome ?? `Pessoa ${transacao.pessoaID}`}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section>
+        <h2>Totais</h2>
+
+        {!totais && <p>Totais ainda não carregados.</p>}
+
+        {totais && (
+          <>
+            <h3>Totais por pessoa</h3>
+            {totais.pessoas.length === 0 && <p>Nenhum total disponível.</p>}
+
+            {totais.pessoas.length > 0 && (
+              <ul>
+                {totais.pessoas.map((pessoa) => (
+                  <li key={pessoa.pessoaID}>
+                    {pessoa.nome} — Receitas: R$ {pessoa.totalReceitas} — Despesas:
+                    R$ {pessoa.totalDespesas} — Saldo: R$ {pessoa.saldo}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <h3>Total geral</h3>
+
+            <p>Receitas: R$ {totais.totalGeral.totalReceitas}</p>
+            <p>Despesas: R$ {totais.totalGeral.totalDespesas}</p>
+            <p>Saldo líquido: R$ {totais.totalGeral.saldoLiquido}</p>
+          </>
+        )}
+      </section>
+    </main>
+  );
+}
+
+export default App;
