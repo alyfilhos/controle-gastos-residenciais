@@ -91,7 +91,7 @@ app.MapPost("/pessoas", async (CriarPessoaDTO dto, AppDbContexto db) =>{
 });
 
 //DELETE PESSOA
-app.MapDelete("/pessoa/{id:int}", async (int id, AppDbContexto db) =>
+app.MapDelete("/pessoas/{id:int}", async (int id, AppDbContexto db) =>
 {
     var pessoa = await db.Pessoas.FindAsync(id);
     if (pessoa is null)
