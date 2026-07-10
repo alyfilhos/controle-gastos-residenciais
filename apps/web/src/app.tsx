@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import {
+  buscarTotais,
   criarPessoa,
   criarTransacao,
   deletarPessoa,
   listarPessoas,
   listarTransacoes,
 } from "./api";
-import type { Pessoa, Transacao } from "./types";
+import type { Pessoa, TotaisResponse, Transacao } from "./types";
 
 function App() {
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
-
+  const [totais, setTotais] = useState<TotaisResponse | null>(null);
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
   const [tipo, setTipo] = useState<"RECEITA" | "DESPESA">("DESPESA");
@@ -70,6 +71,7 @@ function App() {
   useEffect(() => {
     carregarPessoas();
     carregarTransacoes();
+    carregarTotais();
   }, []);
 
   async function removerPessoa(id: number) {
@@ -87,6 +89,9 @@ function App() {
       await deletarPessoa(id);
   
       await carregarPessoas();
+      await carregarTransacoes();
+      await carregarTotais();
+
     } catch (error) {
       if (error instanceof Error) {
         setErro(error.message);
@@ -136,6 +141,7 @@ function App() {
       setPessoaId("");
   
       await carregarTransacoes();
+      await carregarTotais();
     } catch (error) {
       if (error instanceof Error) {
         setErro(error.message);
@@ -145,7 +151,21 @@ function App() {
     }
   }
 
-
+  async function carregarTotais() {
+    try {
+      setErro("");
+  
+      const dados = await buscarTotais();
+  
+      setTotais(dados);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErro(error.message);
+      } else {
+        setErro("Erro inesperado ao carregar totais.");
+      }
+    }
+  }
   
   return (
     <main>
@@ -280,6 +300,36 @@ function App() {
               </li>
             ))}
           </ul>
+        )}
+      </section>
+      <section>
+        <h2>Totais</h2>
+
+        {!totais && <p>Totais ainda não carregados.</p>}
+
+        {totais && (
+          <>
+            <h3>Totais por pessoa</h3>
+
+            {totais.pessoas.length === 0 && <p>Nenhum total disponível.</p>}
+
+            {totais.pessoas.length > 0 && (
+              <ul>
+                {totais.pessoas.map((pessoa) => (
+                  <li key={pessoa.pessoaId}>
+                    {pessoa.nome} — Receitas: R$ {pessoa.totalReceitas} — Despesas:
+                    R$ {pessoa.totalDespesas} — Saldo: R$ {pessoa.saldo}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <h3>Total geral</h3>
+
+            <p>Receitas: R$ {totais.totalGeral.totalReceitas}</p>
+            <p>Despesas: R$ {totais.totalGeral.totalDespesas}</p>
+            <p>Saldo líquido: R$ {totais.totalGeral.saldoLiquido}</p>
+          </>
         )}
       </section>
     </main>

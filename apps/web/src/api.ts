@@ -1,5 +1,4 @@
-import type { Pessoa, Transacao } from "./types";
-//TotaisResponse, Transacao 
+import type { Pessoa, TotaisResponse, Transacao } from "./types";
 const API_URL = "http://localhost:5044";
 
 async function tratarResposta<T>(response: Response): Promise<T> {
@@ -70,3 +69,7 @@ export async function criarTransacao(dados: {
   return tratarResposta<Transacao>(response);
 }
 
+export async function buscarTotais(): Promise<TotaisResponse> {
+  const response = await fetch(`${API_URL}/totais`);
+  return tratarResposta<TotaisResponse>(response);
+}
