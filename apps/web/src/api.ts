@@ -1,5 +1,6 @@
 import type { Pessoa, TotaisResponse, Transacao } from "./types";
-const API_URL = "http://localhost:5044";
+
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5044";
 
 async function tratarResposta<T>(response: Response): Promise<T> {
   if (!response.ok) {

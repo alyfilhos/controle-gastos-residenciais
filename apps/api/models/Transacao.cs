@@ -6,5 +6,5 @@ public class Transacao {
     public TipoDeTransacao Tipo { get; set; }
     public int PessoaID { get; set; } //chave-estrangeira (Id da pessoa que recebe a transação)
 
-    public Pessoa? Pessoa { get; set; } //Pessoa relacionada, pode ser nulo até o BD carregar
+    public Pessoa Pessoa { get; set; } = null!; //Pessoa relacionada
 }

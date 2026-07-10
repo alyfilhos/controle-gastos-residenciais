@@ -61,6 +61,7 @@ app.MapGet("/health/db", async (AppDbContexto db) => {
 //GET PESSOAS
 app.MapGet("/pessoas", async (AppDbContexto db) =>{
     var pessoas = await db.Pessoas
+        .AsNoTracking()
         .OrderBy(pessoa => pessoa.ID)
         .Select(pessoa => new
         {
@@ -77,7 +78,7 @@ app.MapGet("/pessoas", async (AppDbContexto db) =>{
 app.MapPost("/pessoas", async (CriarPessoaDTO dto, AppDbContexto db) =>{
     if(string.IsNullOrWhiteSpace(dto.Nome)){
         return Results.BadRequest(new{
-            mensagem = "O nome da pessoa é obrigatório,"
+            mensagem = "O nome da pessoa é obrigatório."
         });
     }
 
@@ -123,6 +124,7 @@ app.MapDelete("/pessoas/{id:int}", async (int id, AppDbContexto db) =>
 app.MapGet("/transacoes", async (AppDbContexto db) =>
 {
     var transacoes = await db.Transacoes
+        .AsNoTracking()
         .Include(transacao => transacao.Pessoa) //TRANSACAO + PESSOA RELACIONADA
         .OrderBy(transacao => transacao.ID)
         .Select(transacao => new
