@@ -12,6 +12,7 @@ import { classeSaldo, formatarMoeda } from "./utils/formatters";
 
 type TipoTransacao = "Receita" | "Despesa";
 
+// Carrega em paralelo todos os dados que alimentam a tela inicial.
 async function buscarDadosAplicacao() {
   const [pessoasAtualizadas, transacoesAtualizadas, totaisAtualizados] =
     await Promise.all([listarPessoas(), listarTransacoes(), buscarTotais()]);
@@ -23,6 +24,7 @@ async function buscarDadosAplicacao() {
   };
 }
 
+// Garante uma mensagem segura quando o erro recebido não é uma instância de Error.
 function obterMensagemErro(error: unknown, fallback: string) {
   if (error instanceof Error) {
     return error.message;
@@ -32,13 +34,18 @@ function obterMensagemErro(error: unknown, fallback: string) {
 }
 
 function App() {
+  // Estados principais exibidos nas listas, cards e tabelas.
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
   const [totais, setTotais] = useState<TotaisResponse | null>(null);
+
+  // Estados do formulário de transações.
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
   const [tipo, setTipo] = useState<TipoTransacao>("Despesa");
   const [pessoaID, setPessoaID] = useState("");
+
+  // Estados de feedback visual durante carregamento e ações.
   const [carregando, setCarregando] = useState(true);
   const [salvandoPessoa, setSalvandoPessoa] = useState(false);
   const [salvandoTransacao, setSalvandoTransacao] = useState(false);
@@ -48,9 +55,11 @@ function App() {
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
 
+  // Estados do formulário de pessoas.
   const [nome, setNome] = useState("");
   const [idade, setIdade] = useState("");
 
+  // Recarrega os dados após operações de criação ou remoção.
   async function carregarDados() {
     try {
       const { pessoasAtualizadas, transacoesAtualizadas, totaisAtualizados } =
@@ -67,6 +76,7 @@ function App() {
     }
   }
 
+  // Valida e cadastra uma pessoa antes de atualizar a tela.
   async function cadastrarPessoa(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -104,6 +114,7 @@ function App() {
     }
   }
 
+  // Faz a primeira carga de dados e evita atualizar estado se o componente desmontar.
   useEffect(() => {
     let ativo = true;
 
@@ -136,6 +147,7 @@ function App() {
     };
   }, []);
 
+  // Confirma a exclusão e remove a pessoa selecionada.
   async function removerPessoa(id: number) {
     const confirmou = window.confirm(
       "Tem certeza que deseja deletar esta pessoa? As transações dela também serão removidas."
@@ -161,6 +173,7 @@ function App() {
     }
   }
 
+  // Valida e cadastra uma receita ou despesa para a pessoa escolhida.
   async function cadastrarTransacao(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -209,6 +222,7 @@ function App() {
     }
   }
 
+  // Dados derivados para os cards, ranking lateral e lista de lançamentos recentes.
   const totalGeral = totais?.totalGeral;
   const saldoLiquido = totalGeral?.saldoLiquido ?? 0;
   const statusCarregamento = carregando ? "Carregando" : "Atualizado";
@@ -222,6 +236,7 @@ function App() {
 
   return (
     <main className="app-shell">
+      {/* Cabeçalho com o saldo consolidado da família. */}
       <header className="hero">
         <div className="hero-copy">
           <span className="eyebrow">Projeto Renda Familiar</span>
@@ -248,6 +263,7 @@ function App() {
         </div>
       </header>
 
+      {/* Cards de resumo financeiro. */}
       <section className="resumo-grid" aria-label="Resumo financeiro">
         <article className="indicador indicador-receita">
           <div className="indicador-topo">
@@ -285,6 +301,7 @@ function App() {
         </article>
       </section>
 
+      {/* Mensagens de erro e sucesso das ações do usuário. */}
       <div className="mensagens" aria-live="polite">
         {erro && (
           <p className="alerta alerta-erro" role="alert">
@@ -294,6 +311,7 @@ function App() {
         {mensagem && !erro && <p className="alerta alerta-sucesso">{mensagem}</p>}
       </div>
 
+      {/* Área principal de cadastro e leitura rápida. */}
       <div className="layout-principal">
         <section className="painel painel-acoes">
           <div className="secao-titulo">
@@ -493,6 +511,7 @@ function App() {
         </aside>
       </div>
 
+      {/* Tabelas de pessoas e totais individuais. */}
       <div className="dados-grid">
         <section className="painel">
           <div className="secao-titulo">
@@ -598,6 +617,7 @@ function App() {
         </section>
       </div>
 
+      {/* Tabela completa de transações cadastradas. */}
       <section className="painel">
         <div className="secao-titulo">
           <div>

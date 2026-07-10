@@ -1,3 +1,4 @@
+/* Tokens visuais e configuração base da página. */
 :root {
   --bg: #f3f6f8;
   --surface: #ffffff;
@@ -26,6 +27,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Normalização mínima para manter o layout previsível. */
 * {
   box-sizing: border-box;
 }
@@ -52,12 +54,14 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Contêiner principal da aplicação. */
 .app-shell {
   width: min(1200px, 100%);
   margin: 0 auto;
   padding: 32px 20px 52px;
 }
 
+/* Cabeçalho de destaque com o resumo do saldo líquido. */
 .hero {
   align-items: stretch;
   background: #122235;
@@ -139,6 +143,7 @@ p {
   max-width: 620px;
 }
 
+/* Card interno do cabeçalho com status e valor consolidado. */
 .hero-card {
   align-self: stretch;
   background: rgba(255, 255, 255, 0.1);
@@ -187,6 +192,7 @@ p {
   box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.16);
 }
 
+/* Grades principais usadas por cards, formulários e tabelas. */
 .resumo-grid,
 .forms-grid,
 .layout-principal,
@@ -200,6 +206,7 @@ p {
   margin-bottom: 14px;
 }
 
+/* Cards de indicadores financeiros. */
 .indicador,
 .painel {
   background: var(--surface);
@@ -260,6 +267,7 @@ p {
   margin-top: 8px;
 }
 
+/* Mensagens de erro e sucesso após ações do usuário. */
 .mensagens {
   min-height: 44px;
 }
@@ -282,6 +290,7 @@ p {
   color: #12613f;
 }
 
+/* Estrutura das áreas de cadastro, resumo lateral e dados tabulares. */
 .layout-principal {
   align-items: start;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
@@ -305,6 +314,7 @@ p {
   top: 16px;
 }
 
+/* Cabeçalhos de cada painel. */
 .secao-titulo {
   align-items: flex-start;
   display: flex;
@@ -324,6 +334,7 @@ p {
   grid-template-columns: minmax(230px, 0.8fr) minmax(320px, 1.2fr);
 }
 
+/* Blocos de formulário para pessoa e transação. */
 .form-bloco {
   border-top: 1px solid var(--border);
   display: grid;
@@ -353,6 +364,7 @@ p {
   width: 32px;
 }
 
+/* Campos de formulário e estados de foco. */
 .form-grid {
   display: grid;
   gap: 14px;
@@ -416,6 +428,7 @@ select:disabled {
   cursor: not-allowed;
 }
 
+/* Alternância visual entre Receita e Despesa. */
 .tipo-toggle {
   display: grid;
   gap: 8px;
@@ -452,6 +465,7 @@ select:disabled {
   width: 1px;
 }
 
+/* Botões principais, secundários e destrutivos. */
 .botao {
   align-items: center;
   background: var(--primary);
@@ -499,6 +513,7 @@ select:disabled {
   color: var(--expense);
 }
 
+/* Resumo lateral com métricas compactas e listas de destaque. */
 .mini-metricas {
   display: grid;
   gap: 10px;
@@ -566,6 +581,7 @@ select:disabled {
   color: var(--expense);
 }
 
+/* Tabelas responsivas com rolagem horizontal quando necessário. */
 .table-wrap {
   overflow-x: auto;
 }
@@ -627,6 +643,7 @@ tbody tr:hover td {
   color: var(--expense);
 }
 
+/* Cores reutilizadas para saldos positivos, negativos e neutros. */
 .valor-positivo {
   color: var(--income);
 }
@@ -651,6 +668,7 @@ tbody tr:hover td {
   padding: 10px;
 }
 
+/* Quebras responsivas para tablets e telas menores. */
 @media (max-width: 1080px) {
   .hero,
   .layout-principal,
@@ -667,6 +685,7 @@ tbody tr:hover td {
   }
 }
 
+/* Ajusta grades intermediárias antes do layout de celular. */
 @media (max-width: 860px) {
   .resumo-grid,
   .forms-grid {
@@ -678,6 +697,7 @@ tbody tr:hover td {
   }
 }
 
+/* Layout compacto para celular. */
 @media (max-width: 640px) {
   .app-shell {
     padding: 18px 12px 34px;

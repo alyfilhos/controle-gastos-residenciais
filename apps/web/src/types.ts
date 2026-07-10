@@ -27,6 +27,7 @@ export type TotalGeral = {
   saldoLiquido: number;
 };
 
+// Resposta do endpoint de totais.
 export type TotaisResponse = {
   pessoas: PessoaTotal[];
   totalGeral: TotalGeral;
