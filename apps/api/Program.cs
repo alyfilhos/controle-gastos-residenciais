@@ -2,11 +2,16 @@ using api.data;
 using api.dtos;
 using api.models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddCors(options =>
 {
@@ -223,24 +228,24 @@ app.MapGet("/totais", async (AppDbContexto db) =>
     {
         var transacoesPessoa = transacoes.Where(transacao => transacao.PessoaID == pessoa.ID);
 
-        var totalreceita = transacoesPessoa.Where(transacao => transacao.Tipo == TipoDeTransacao.Receita).Sum(transacao => transacao.Valor);
+        var totalReceitas = transacoesPessoa.Where(transacao => transacao.Tipo == TipoDeTransacao.Receita).Sum(transacao => transacao.Valor);
 
-        var totaldespesa = transacoesPessoa.Where(transacao => transacao.Tipo == TipoDeTransacao.Despesa).Sum(transacao => transacao.Valor);
+        var totalDespesas = transacoesPessoa.Where(transacao => transacao.Tipo == TipoDeTransacao.Despesa).Sum(transacao => transacao.Valor);
 
         return new PessoaTotalDTO
         {
             PessoaID = pessoa.ID,
             Nome = pessoa.Nome,
-            TotalReceita = totalreceita,
-            TotalDespesa = totaldespesa
+            TotalReceitas = totalReceitas,
+            TotalDespesas = totalDespesas
         };
     })
     .ToList();
 
     var TotalGeral = new TotalGeralDTO
     {
-        TotalReceitas = totaisPorPessoa.Sum(pessoa => pessoa.TotalReceita),
-        TotalDespesas = totaisPorPessoa.Sum(pessoa => pessoa.TotalDespesa)
+        TotalReceitas = totaisPorPessoa.Sum(pessoa => pessoa.TotalReceitas),
+        TotalDespesas = totaisPorPessoa.Sum(pessoa => pessoa.TotalDespesas)
     };
 
     var resposta = new TotalDTO

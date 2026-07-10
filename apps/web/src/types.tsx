@@ -9,12 +9,12 @@ export type Pessoa = {
     descricao: string;
     valor: number;
     tipo: "Receita" | "Despesa";
-    pessoaId: number;
+    pessoaID: number;
     pessoa?: Pessoa;
   };
   
   export type PessoaTotal = {
-    pessoaId: number;
+    pessoaID: number;
     nome: string;
     totalReceitas: number;
     totalDespesas: number;

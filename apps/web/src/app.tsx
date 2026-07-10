@@ -15,8 +15,8 @@ function App() {
   const [totais, setTotais] = useState<TotaisResponse | null>(null);
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
-  const [tipo, setTipo] = useState<"RECEITA" | "DESPESA">("DESPESA");
-  const [pessoaId, setPessoaId] = useState("");
+  const [tipo, setTipo] = useState<"Receita" | "Despesa">("Despesa");
+  const [pessoaID, setPessoaID] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
@@ -120,7 +120,7 @@ function App() {
   async function cadastrarTransacao(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
   
-    if (!pessoaId) {
+    if (!pessoaID) {
       setErro("Selecione uma pessoa para cadastrar a transação.");
       return;
     }
@@ -132,13 +132,13 @@ function App() {
         descricao,
         valor: Number(valor),
         tipo,
-        pessoaId: Number(pessoaId),
+        pessoaID: Number(pessoaID),
       });
   
       setDescricao("");
       setValor("");
-      setTipo("DESPESA");
-      setPessoaId("");
+      setTipo("Despesa");
+      setPessoaID("");
   
       await carregarTransacoes();
       await carregarTotais();
@@ -233,20 +233,20 @@ function App() {
               id="tipo"
               value={tipo}
               onChange={(event) =>
-                setTipo(event.target.value as "RECEITA" | "DESPESA")
+                setTipo(event.target.value as "Receita" | "Despesa")
               }
             >
-              <option value="DESPESA">Despesa</option>
-              <option value="RECEITA">Receita</option>
+              <option value="Despesa">Despesa</option>
+              <option value="Receita">Receita</option>
             </select>
           </div>
 
           <div>
-            <label htmlFor="pessoaId">Pessoa</label>
+            <label htmlFor="pessoaID">Pessoa</label>
             <select
-              id="pessoaId"
-              value={pessoaId}
-              onChange={(event) => setPessoaId(event.target.value)}
+              id="pessoaID"
+              value={pessoaID}
+              onChange={(event) => setPessoaID(event.target.value)}
             >
               <option value="">Selecione uma pessoa</option>
 
@@ -296,7 +296,7 @@ function App() {
             {transacoes.map((transacao) => (
               <li key={transacao.id}>
                 {transacao.descricao} — {transacao.tipo} — R$ {transacao.valor} —{" "}
-                {transacao.pessoa?.nome ?? `Pessoa ${transacao.pessoaId}`}
+                {transacao.pessoa?.nome ?? `Pessoa ${transacao.pessoaID}`}
               </li>
             ))}
           </ul>
@@ -310,13 +310,12 @@ function App() {
         {totais && (
           <>
             <h3>Totais por pessoa</h3>
-
             {totais.pessoas.length === 0 && <p>Nenhum total disponível.</p>}
 
             {totais.pessoas.length > 0 && (
               <ul>
                 {totais.pessoas.map((pessoa) => (
-                  <li key={pessoa.pessoaId}>
+                  <li key={pessoa.pessoaID}>
                     {pessoa.nome} — Receitas: R$ {pessoa.totalReceitas} — Despesas:
                     R$ {pessoa.totalDespesas} — Saldo: R$ {pessoa.saldo}
                   </li>

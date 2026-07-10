@@ -55,8 +55,8 @@ export async function listarTransacoes(): Promise<Transacao[]> {
 export async function criarTransacao(dados: {
   descricao: string;
   valor: number;
-  tipo: "RECEITA" | "DESPESA";
-  pessoaId: number;
+  tipo: "Receita" | "Despesa";
+  pessoaID: number;
 }): Promise<Transacao> {
   const response = await fetch(`${API_URL}/transacoes`, {
     method: "POST",
