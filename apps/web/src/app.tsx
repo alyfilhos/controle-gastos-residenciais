@@ -211,37 +211,77 @@ function App() {
 
   const totalGeral = totais?.totalGeral;
   const saldoLiquido = totalGeral?.saldoLiquido ?? 0;
+  const statusCarregamento = carregando ? "Carregando" : "Atualizado";
+  const totalRegistros = pessoas.length + transacoes.length;
+  const destaquesPessoa = [...(totais?.pessoas ?? [])]
+    .sort((a, b) => b.saldo - a.saldo)
+    .slice(0, 3);
+  const ultimasTransacoes = [...transacoes]
+    .sort((a, b) => b.id - a.id)
+    .slice(0, 5);
 
   return (
     <main className="app-shell">
-      <header className="topo">
-        <div>
+      <header className="hero">
+        <div className="hero-copy">
           <span className="eyebrow">Projeto Renda Familiar</span>
-          <h1>Controle de Gastos Residenciais</h1>
+          <h1>Controle de gastos residenciais</h1>
+          <p>
+            Registre pessoas, receitas e despesas para acompanhar o saldo da
+            família com clareza.
+          </p>
         </div>
-        <p>
-          {pessoas.length} pessoas | {transacoes.length} transações
-        </p>
-      </header>
 
-      <section className="resumo-grid" aria-label="Resumo financeiro">
-        <article className="indicador">
-          <span>Receitas</span>
-          <strong>{formatarMoeda(totalGeral?.totalReceitas ?? 0)}</strong>
-        </article>
-        <article className="indicador">
-          <span>Despesas</span>
-          <strong>{formatarMoeda(totalGeral?.totalDespesas ?? 0)}</strong>
-        </article>
-        <article className="indicador">
+        <div className="hero-card" aria-label="Saldo consolidado">
+          <div className="status-linha">
+            <span
+              className={`status-dot ${carregando ? "carregando" : ""}`}
+              aria-hidden="true"
+            />
+            {statusCarregamento}
+          </div>
           <span>Saldo líquido</span>
           <strong className={classeSaldo(saldoLiquido)}>
             {formatarMoeda(saldoLiquido)}
           </strong>
+          <small>{totalRegistros} registros no sistema</small>
+        </div>
+      </header>
+
+      <section className="resumo-grid" aria-label="Resumo financeiro">
+        <article className="indicador indicador-receita">
+          <div className="indicador-topo">
+            <span className="indicador-icone">+</span>
+            <span>Receitas</span>
+          </div>
+          <strong>{formatarMoeda(totalGeral?.totalReceitas ?? 0)}</strong>
+          <small>Entradas registradas</small>
+        </article>
+        <article className="indicador indicador-despesa">
+          <div className="indicador-topo">
+            <span className="indicador-icone">-</span>
+            <span>Despesas</span>
+          </div>
+          <strong>{formatarMoeda(totalGeral?.totalDespesas ?? 0)}</strong>
+          <small>Saídas registradas</small>
+        </article>
+        <article className="indicador indicador-saldo">
+          <div className="indicador-topo">
+            <span className="indicador-icone">=</span>
+            <span>Saldo líquido</span>
+          </div>
+          <strong className={classeSaldo(saldoLiquido)}>
+            {formatarMoeda(saldoLiquido)}
+          </strong>
+          <small>Receitas menos despesas</small>
         </article>
         <article className="indicador">
-          <span>Status</span>
-          <strong>{carregando ? "Carregando" : "Atualizado"}</strong>
+          <div className="indicador-topo">
+            <span className="indicador-icone">#</span>
+            <span>Pessoas</span>
+          </div>
+          <strong>{pessoas.length}</strong>
+          <small>{transacoes.length} transações cadastradas</small>
         </article>
       </section>
 
@@ -254,186 +294,325 @@ function App() {
         {mensagem && !erro && <p className="alerta alerta-sucesso">{mensagem}</p>}
       </div>
 
-      <div className="forms-grid">
+      <div className="layout-principal">
+        <section className="painel painel-acoes">
+          <div className="secao-titulo">
+            <div>
+              <h2>Adicionar informações</h2>
+              <span>Mantenha o cadastro familiar sempre atualizado.</span>
+            </div>
+          </div>
+
+          <div className="forms-grid">
+            <form className="form-bloco" onSubmit={cadastrarPessoa}>
+              <div className="form-bloco-topo">
+                <span className="form-indice">01</span>
+                <div>
+                  <h3>Nova pessoa</h3>
+                  <p>Quem participa do controle financeiro.</p>
+                </div>
+              </div>
+
+              <div className="form-grid">
+                <div className="campo">
+                  <label htmlFor="nome">Nome</label>
+                  <input
+                    id="nome"
+                    type="text"
+                    value={nome}
+                    onChange={(event) => setNome(event.target.value)}
+                    placeholder="Ex: Ana"
+                    autoComplete="name"
+                    required
+                  />
+                </div>
+
+                <div className="campo">
+                  <label htmlFor="idade">Idade</label>
+                  <input
+                    id="idade"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={idade}
+                    onChange={(event) => setIdade(event.target.value)}
+                    placeholder="Ex: 22"
+                    required
+                  />
+                </div>
+
+                <button className="botao" type="submit" disabled={salvandoPessoa}>
+                  {salvandoPessoa ? "Cadastrando..." : "Cadastrar pessoa"}
+                </button>
+              </div>
+            </form>
+
+            <form className="form-bloco" onSubmit={cadastrarTransacao}>
+              <div className="form-bloco-topo">
+                <span className="form-indice">02</span>
+                <div>
+                  <h3>Nova transação</h3>
+                  <p>Registre uma receita ou despesa por pessoa.</p>
+                </div>
+              </div>
+
+              <div className="form-grid form-grid-transacao">
+                <div className="campo campo-cheio">
+                  <label htmlFor="descricao">Descrição</label>
+                  <input
+                    id="descricao"
+                    type="text"
+                    value={descricao}
+                    onChange={(event) => setDescricao(event.target.value)}
+                    placeholder="Ex: Mercado"
+                    required
+                  />
+                </div>
+
+                <div className="campo">
+                  <label htmlFor="valor">Valor</label>
+                  <input
+                    id="valor"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={valor}
+                    onChange={(event) => setValor(event.target.value)}
+                    placeholder="Ex: 250"
+                    required
+                  />
+                </div>
+
+                <fieldset className="campo">
+                  <legend>Tipo</legend>
+                  <div className="tipo-toggle">
+                    <label className={tipo === "Despesa" ? "ativo" : ""}>
+                      <input
+                        type="radio"
+                        name="tipo"
+                        value="Despesa"
+                        checked={tipo === "Despesa"}
+                        onChange={() => setTipo("Despesa")}
+                      />
+                      Despesa
+                    </label>
+                    <label className={tipo === "Receita" ? "ativo" : ""}>
+                      <input
+                        type="radio"
+                        name="tipo"
+                        value="Receita"
+                        checked={tipo === "Receita"}
+                        onChange={() => setTipo("Receita")}
+                      />
+                      Receita
+                    </label>
+                  </div>
+                </fieldset>
+
+                <div className="campo campo-cheio">
+                  <label htmlFor="pessoaID">Pessoa</label>
+                  <select
+                    id="pessoaID"
+                    value={pessoaID}
+                    onChange={(event) => setPessoaID(event.target.value)}
+                    required
+                    disabled={pessoas.length === 0}
+                  >
+                    <option value="">Selecione uma pessoa</option>
+
+                    {pessoas.map((pessoa) => (
+                      <option key={pessoa.id} value={pessoa.id}>
+                        {pessoa.nome} - {pessoa.idade} anos
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  className="botao campo-cheio"
+                  type="submit"
+                  disabled={salvandoTransacao || pessoas.length === 0}
+                >
+                  {salvandoTransacao ? "Cadastrando..." : "Cadastrar transação"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <aside className="painel painel-resumo">
+          <div className="secao-titulo">
+            <div>
+              <h2>Leitura rápida</h2>
+              <span>Visão consolidada</span>
+            </div>
+          </div>
+
+          <div className="mini-metricas">
+            <div>
+              <span>Pessoas</span>
+              <strong>{pessoas.length}</strong>
+            </div>
+            <div>
+              <span>Transações</span>
+              <strong>{transacoes.length}</strong>
+            </div>
+          </div>
+
+          <div className="lista-destaques">
+            <h3>Maiores saldos</h3>
+            {destaquesPessoa.length === 0 && (
+              <p className="lista-vazia compacta">Sem saldo por pessoa.</p>
+            )}
+
+            {destaquesPessoa.map((pessoa) => (
+              <div className="linha-destaque" key={pessoa.pessoaID}>
+                <span>{pessoa.nome}</span>
+                <strong className={classeSaldo(pessoa.saldo)}>
+                  {formatarMoeda(pessoa.saldo)}
+                </strong>
+              </div>
+            ))}
+          </div>
+
+          <div className="lista-destaques">
+            <h3>Últimos lançamentos</h3>
+            {ultimasTransacoes.length === 0 && (
+              <p className="lista-vazia compacta">Sem lançamentos recentes.</p>
+            )}
+
+            {ultimasTransacoes.map((transacao) => (
+              <div className="linha-destaque" key={transacao.id}>
+                <span>{transacao.descricao}</span>
+                <strong className={transacao.tipo.toLowerCase()}>
+                  {formatarMoeda(transacao.valor)}
+                </strong>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
+
+      <div className="dados-grid">
         <section className="painel">
-          <h2>Cadastrar pessoa</h2>
-
-          <form className="form-grid" onSubmit={cadastrarPessoa}>
-            <div className="campo">
-              <label htmlFor="nome">Nome</label>
-              <input
-                id="nome"
-                type="text"
-                value={nome}
-                onChange={(event) => setNome(event.target.value)}
-                placeholder="Ex: Ana"
-                autoComplete="name"
-                required
-              />
+          <div className="secao-titulo">
+            <div>
+              <h2>Pessoas cadastradas</h2>
+              <span>{pessoas.length} registros</span>
             </div>
+          </div>
 
-            <div className="campo">
-              <label htmlFor="idade">Idade</label>
-              <input
-                id="idade"
-                type="number"
-                min="0"
-                step="1"
-                value={idade}
-                onChange={(event) => setIdade(event.target.value)}
-                placeholder="Ex: 22"
-                required
-              />
+          {carregando && <p className="lista-vazia">Carregando pessoas...</p>}
+
+          {!carregando && pessoas.length === 0 && (
+            <p className="lista-vazia">Nenhuma pessoa cadastrada.</p>
+          )}
+
+          {!carregando && pessoas.length > 0 && (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Idade</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pessoas.map((pessoa) => (
+                    <tr key={pessoa.id}>
+                      <td>
+                        <strong className="texto-principal">{pessoa.nome}</strong>
+                      </td>
+                      <td>{pessoa.idade} anos</td>
+                      <td className="acoes">
+                        <button
+                          className="botao secundario perigo"
+                          type="button"
+                          onClick={() => void removerPessoa(pessoa.id)}
+                          disabled={removendoPessoaID === pessoa.id}
+                        >
+                          {removendoPessoaID === pessoa.id
+                            ? "Removendo..."
+                            : "Deletar"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            <button className="botao" type="submit" disabled={salvandoPessoa}>
-              {salvandoPessoa ? "Cadastrando..." : "Cadastrar pessoa"}
-            </button>
-          </form>
+          )}
         </section>
 
         <section className="painel">
-          <h2>Cadastrar transação</h2>
-
-          <form className="form-grid" onSubmit={cadastrarTransacao}>
-            <div className="campo">
-              <label htmlFor="descricao">Descrição</label>
-              <input
-                id="descricao"
-                type="text"
-                value={descricao}
-                onChange={(event) => setDescricao(event.target.value)}
-                placeholder="Ex: Mercado"
-                required
-              />
+          <div className="secao-titulo">
+            <div>
+              <h2>Totais por pessoa</h2>
+              <span>{totais?.pessoas.length ?? 0} registros</span>
             </div>
+          </div>
 
-            <div className="campo">
-              <label htmlFor="valor">Valor</label>
-              <input
-                id="valor"
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={valor}
-                onChange={(event) => setValor(event.target.value)}
-                placeholder="Ex: 250"
-                required
-              />
+          {!totais && (
+            <p className="lista-vazia">Totais ainda não carregados.</p>
+          )}
+
+          {totais && totais.pessoas.length === 0 && (
+            <p className="lista-vazia">Nenhum total disponível.</p>
+          )}
+
+          {totais && totais.pessoas.length > 0 && (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pessoa</th>
+                    <th className="valor-coluna">Receitas</th>
+                    <th className="valor-coluna">Despesas</th>
+                    <th className="valor-coluna">Saldo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {totais.pessoas.map((pessoa) => (
+                    <tr key={pessoa.pessoaID}>
+                      <td>
+                        <strong className="texto-principal">{pessoa.nome}</strong>
+                      </td>
+                      <td className="valor-coluna">
+                        {formatarMoeda(pessoa.totalReceitas)}
+                      </td>
+                      <td className="valor-coluna">
+                        {formatarMoeda(pessoa.totalDespesas)}
+                      </td>
+                      <td
+                        className={`valor-coluna ${classeSaldo(pessoa.saldo)}`}
+                      >
+                        {formatarMoeda(pessoa.saldo)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            <fieldset className="campo">
-              <legend>Tipo</legend>
-              <div className="tipo-toggle">
-                <label className={tipo === "Despesa" ? "ativo" : ""}>
-                  <input
-                    type="radio"
-                    name="tipo"
-                    value="Despesa"
-                    checked={tipo === "Despesa"}
-                    onChange={() => setTipo("Despesa")}
-                  />
-                  Despesa
-                </label>
-                <label className={tipo === "Receita" ? "ativo" : ""}>
-                  <input
-                    type="radio"
-                    name="tipo"
-                    value="Receita"
-                    checked={tipo === "Receita"}
-                    onChange={() => setTipo("Receita")}
-                  />
-                  Receita
-                </label>
-              </div>
-            </fieldset>
-
-            <div className="campo">
-              <label htmlFor="pessoaID">Pessoa</label>
-              <select
-                id="pessoaID"
-                value={pessoaID}
-                onChange={(event) => setPessoaID(event.target.value)}
-                required
-                disabled={pessoas.length === 0}
-              >
-                <option value="">Selecione uma pessoa</option>
-
-                {pessoas.map((pessoa) => (
-                  <option key={pessoa.id} value={pessoa.id}>
-                    {pessoa.nome} - {pessoa.idade} anos
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              className="botao"
-              type="submit"
-              disabled={salvandoTransacao || pessoas.length === 0}
-            >
-              {salvandoTransacao ? "Cadastrando..." : "Cadastrar transação"}
-            </button>
-          </form>
+          )}
         </section>
       </div>
 
       <section className="painel">
         <div className="secao-titulo">
-          <h2>Pessoas cadastradas</h2>
-          <span>{pessoas.length} registros</span>
-        </div>
-
-        {carregando && <p className="lista-vazia">Carregando pessoas...</p>}
-
-        {!carregando && pessoas.length === 0 && (
-          <p className="lista-vazia">Nenhuma pessoa cadastrada.</p>
-        )}
-
-        {!carregando && pessoas.length > 0 && (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>Idade</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pessoas.map((pessoa) => (
-                  <tr key={pessoa.id}>
-                    <td>{pessoa.nome}</td>
-                    <td>{pessoa.idade} anos</td>
-                    <td className="acoes">
-                      <button
-                        className="botao secundario perigo"
-                        type="button"
-                        onClick={() => void removerPessoa(pessoa.id)}
-                        disabled={removendoPessoaID === pessoa.id}
-                      >
-                        {removendoPessoaID === pessoa.id ? "Removendo..." : "Deletar"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div>
+            <h2>Transações cadastradas</h2>
+            <span>{transacoes.length} registros</span>
           </div>
-        )}
-      </section>
-
-      <section className="painel">
-        <div className="secao-titulo">
-          <h2>Transações cadastradas</h2>
-          <span>{transacoes.length} registros</span>
         </div>
 
-        {transacoes.length === 0 && (
+        {carregando && <p className="lista-vazia">Carregando transações...</p>}
+
+        {!carregando && transacoes.length === 0 && (
           <p className="lista-vazia">Nenhuma transação cadastrada.</p>
         )}
 
-        {transacoes.length > 0 && (
+        {!carregando && transacoes.length > 0 && (
           <div className="table-wrap">
             <table>
               <thead>
@@ -447,7 +626,11 @@ function App() {
               <tbody>
                 {transacoes.map((transacao) => (
                   <tr key={transacao.id}>
-                    <td>{transacao.descricao}</td>
+                    <td>
+                      <strong className="texto-principal">
+                        {transacao.descricao}
+                      </strong>
+                    </td>
                     <td>
                       <span className={`badge ${transacao.tipo.toLowerCase()}`}>
                         {transacao.tipo}
@@ -456,50 +639,6 @@ function App() {
                     <td>{transacao.pessoa?.nome ?? `Pessoa ${transacao.pessoaID}`}</td>
                     <td className="valor-coluna">
                       {formatarMoeda(transacao.valor)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <section className="painel">
-        <div className="secao-titulo">
-          <h2>Totais por pessoa</h2>
-          <span>{totais?.pessoas.length ?? 0} registros</span>
-        </div>
-
-        {!totais && <p className="lista-vazia">Totais ainda não carregados.</p>}
-
-        {totais && totais.pessoas.length === 0 && (
-          <p className="lista-vazia">Nenhum total disponível.</p>
-        )}
-
-        {totais && totais.pessoas.length > 0 && (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Pessoa</th>
-                  <th className="valor-coluna">Receitas</th>
-                  <th className="valor-coluna">Despesas</th>
-                  <th className="valor-coluna">Saldo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {totais.pessoas.map((pessoa) => (
-                  <tr key={pessoa.pessoaID}>
-                    <td>{pessoa.nome}</td>
-                    <td className="valor-coluna">
-                      {formatarMoeda(pessoa.totalReceitas)}
-                    </td>
-                    <td className="valor-coluna">
-                      {formatarMoeda(pessoa.totalDespesas)}
-                    </td>
-                    <td className={`valor-coluna ${classeSaldo(pessoa.saldo)}`}>
-                      {formatarMoeda(pessoa.saldo)}
                     </td>
                   </tr>
                 ))}
