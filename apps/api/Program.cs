@@ -31,6 +31,12 @@ builder.Services.AddDbContext<AppDbContexto>(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContexto>();
+    db.Database.Migrate();
+}
+
 app.UseCors("FrontendPolicy");
 
 app.UseSwagger();
