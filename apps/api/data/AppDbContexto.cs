@@ -7,7 +7,7 @@ public class AppDbContexto : DbContext{
     public DbSet<Pessoa> Pessoas { get; set; } = null!;
     public DbSet<Transacao> Transacoes { get; set; } = null!;
 
-    // Definições do banco: provider, string de conexão e outras opções.
+    //Definições do banco: provider, string de conexão e outras opções.
     public AppDbContexto(DbContextOptions<AppDbContexto> opcoes) : base(opcoes){
     }
 
