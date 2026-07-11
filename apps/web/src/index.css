@@ -1,111 +1,748 @@
+/* Tokens visuais e configuração base da página. */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --bg: #f3f6f8;
+  --surface: #ffffff;
+  --surface-soft: #f7fafb;
+  --surface-strong: #e9f0f4;
+  --text: #17212b;
+  --muted: #647282;
+  --border: #d8e1e8;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-soft: #eaf1ff;
+  --income: #0f8a5f;
+  --income-soft: #e8f7f0;
+  --expense: #c24141;
+  --expense-soft: #fff0f0;
+  --warning-soft: #fff7df;
+  --shadow: rgba(23, 33, 43, 0.08) 0 16px 40px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
+  font: 16px/1.5 system-ui, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: 0;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+/* Normalização mínima para manter o layout previsível. */
+* {
+  box-sizing: border-box;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  min-width: 320px;
+  background:
+    linear-gradient(180deg, #eaf1f7 0, rgba(234, 241, 247, 0) 340px),
+    var(--bg);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Contêiner principal da aplicação. */
+.app-shell {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: 32px 20px 52px;
+}
+
+/* Cabeçalho de destaque com o resumo do saldo líquido. */
+.hero {
+  align-items: stretch;
+  background: #122235;
+  border-radius: 8px;
+  color: #ffffff;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  margin-bottom: 18px;
+  overflow: hidden;
+  padding: 28px;
+  position: relative;
+}
+
+.hero::after {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.34), transparent 62%),
+    linear-gradient(45deg, rgba(15, 138, 95, 0.28), transparent 54%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.hero-copy,
+.hero-card {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-copy {
+  align-self: center;
+  max-width: 720px;
+}
+
+.eyebrow {
+  color: #b9c9d8;
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+  text-transform: uppercase;
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+h2,
+h3 {
+  color: inherit;
+  font-weight: 750;
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  font-size: 3rem;
+  line-height: 1;
+  margin: 0;
+  max-width: 720px;
 }
+
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+  font-size: 1.05rem;
+  line-height: 1.25;
+  margin: 0;
 }
+
+h3 {
+  font-size: 0.98rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
 p {
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+.hero-copy p {
+  color: #d7e1ea;
+  margin-top: 14px;
+  max-width: 620px;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* Card interno do cabeçalho com status e valor consolidado. */
+.hero-card {
+  align-self: stretch;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 180px;
+  padding: 20px;
+}
+
+.hero-card span,
+.hero-card small {
+  color: #c4d2df;
+}
+
+.hero-card strong {
+  display: block;
+  font-size: 2rem;
+  line-height: 1.1;
+  margin: 8px 0 10px;
+}
+
+.status-linha {
+  align-items: center;
+  color: #d7e1ea;
+  display: inline-flex;
+  font-size: 0.88rem;
+  font-weight: 700;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.status-dot {
+  background: #22c55e;
+  border-radius: 999px;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14);
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+}
+
+.status-dot.carregando {
+  background: #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.16);
+}
+
+/* Grades principais usadas por cards, formulários e tabelas. */
+.resumo-grid,
+.forms-grid,
+.layout-principal,
+.dados-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.resumo-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+/* Cards de indicadores financeiros. */
+.indicador,
+.painel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.indicador {
+  border-left: 4px solid var(--primary);
+  min-height: 136px;
+  padding: 18px;
+}
+
+.indicador-receita {
+  border-left-color: var(--income);
+}
+
+.indicador-despesa {
+  border-left-color: var(--expense);
+}
+
+.indicador-saldo {
+  border-left-color: #7c3aed;
+}
+
+.indicador-topo {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 0.9rem;
+  font-weight: 750;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.indicador-icone {
+  align-items: center;
+  background: var(--surface-strong);
+  border-radius: 999px;
+  color: var(--text);
+  display: inline-flex;
+  font-size: 0.82rem;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
+}
+
+.indicador strong {
+  display: block;
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.indicador small {
+  color: var(--muted);
+  display: block;
+  margin-top: 8px;
+}
+
+/* Mensagens de erro e sucesso após ações do usuário. */
+.mensagens {
+  min-height: 44px;
+}
+
+.alerta {
+  border-radius: 8px;
+  margin: 0 0 14px;
+  padding: 11px 13px;
+}
+
+.alerta-erro {
+  background: var(--expense-soft);
+  border: 1px solid #f0b9b9;
+  color: #8a1f1f;
+}
+
+.alerta-sucesso {
+  background: var(--income-soft);
+  border: 1px solid #b7e4c8;
+  color: #12613f;
+}
+
+/* Estrutura das áreas de cadastro, resumo lateral e dados tabulares. */
+.layout-principal {
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+}
+
+.dados-grid {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+}
+
+.painel {
+  margin-bottom: 14px;
+  padding: 20px;
+}
+
+.painel-acoes {
+  min-width: 0;
+}
+
+.painel-resumo {
+  position: sticky;
+  top: 16px;
+}
+
+/* Cabeçalhos de cada painel. */
+.secao-titulo {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.secao-titulo span,
+.lista-vazia,
+.form-bloco-topo p,
+.mini-metricas span {
+  color: var(--muted);
+}
+
+.forms-grid {
+  grid-template-columns: minmax(230px, 0.8fr) minmax(320px, 1.2fr);
+}
+
+/* Blocos de formulário para pessoa e transação. */
+.form-bloco {
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  padding-top: 16px;
+}
+
+.form-bloco-topo {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+}
+
+.form-indice {
+  align-items: center;
+  background: var(--primary-soft);
+  border: 1px solid #c9d8ff;
+  border-radius: 999px;
+  color: var(--primary);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 800;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+/* Campos de formulário e estados de foco. */
+.form-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.form-grid-transacao {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.campo-cheio {
+  grid-column: 1 / -1;
+}
+
+.campo {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.campo label,
+.campo legend {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+input,
+select {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  min-height: 44px;
+  padding: 9px 11px;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+  width: 100%;
+}
+
+input:hover,
+select:hover {
+  border-color: #bdcbd6;
+}
+
+input:focus,
+select:focus,
+button:focus-visible,
+.tipo-toggle label:focus-within {
+  outline: 3px solid rgba(37, 99, 235, 0.18);
+  outline-offset: 1px;
+}
+
+input:disabled,
+select:disabled {
+  background: var(--surface-soft);
+  cursor: not-allowed;
+}
+
+/* Alternância visual entre Receita e Despesa. */
+.tipo-toggle {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tipo-toggle label {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 10px;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.tipo-toggle label.ativo {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.tipo-toggle input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+/* Botões principais, secundários e destrutivos. */
+.botao {
+  align-items: center;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 44px;
+  padding: 9px 14px;
+  text-align: center;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.botao:hover:not(:disabled) {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.botao:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.botao.secundario {
+  background: #ffffff;
+  border-color: var(--border);
+  color: var(--text);
+  min-height: 38px;
+  padding: 7px 12px;
+}
+
+.botao.secundario:hover:not(:disabled) {
+  background: var(--surface-soft);
+  border-color: var(--border);
+}
+
+.botao.perigo {
+  color: var(--expense);
+}
+
+/* Resumo lateral com métricas compactas e listas de destaque. */
+.mini-metricas {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 20px;
+}
+
+.mini-metricas div {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.mini-metricas strong {
+  display: block;
+  font-size: 1.45rem;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+.lista-destaques {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.lista-destaques + .lista-destaques {
+  margin-top: 16px;
+}
+
+.lista-destaques h3 {
+  margin-bottom: 10px;
+}
+
+.linha-destaque {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.linha-destaque + .linha-destaque {
+  border-top: 1px solid var(--border);
+}
+
+.linha-destaque span {
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linha-destaque strong {
+  flex: 0 0 auto;
+  font-size: 0.9rem;
+}
+
+.linha-destaque strong.receita {
+  color: var(--income);
+}
+
+.linha-destaque strong.despesa {
+  color: var(--expense);
+}
+
+/* Tabelas responsivas com rolagem horizontal quando necessário. */
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  min-width: 620px;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border);
+  padding: 13px 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover td {
+  background: var(--surface-soft);
+}
+
+.acoes,
+.valor-coluna {
+  text-align: right;
+}
+
+.texto-principal {
+  color: var(--text);
+  font-weight: 750;
+}
+
+.badge {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 9px;
+}
+
+.badge.receita {
+  background: var(--income-soft);
+  color: var(--income);
+}
+
+.badge.despesa {
+  background: var(--expense-soft);
+  color: var(--expense);
+}
+
+/* Cores reutilizadas para saldos positivos, negativos e neutros. */
+.valor-positivo {
+  color: var(--income);
+}
+
+.valor-negativo {
+  color: var(--expense);
+}
+
+.valor-neutro {
+  color: var(--muted);
+}
+
+.lista-vazia {
+  background: var(--surface-soft);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.lista-vazia.compacta {
+  font-size: 0.9rem;
+  padding: 10px;
+}
+
+/* Quebras responsivas para tablets e telas menores. */
+@media (max-width: 1080px) {
+  .hero,
+  .layout-principal,
+  .dados-grid {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 2.4rem;
+  }
+
+  .painel-resumo {
+    position: static;
+  }
+}
+
+/* Ajusta grades intermediárias antes do layout de celular. */
+@media (max-width: 860px) {
+  .resumo-grid,
+  .forms-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid-transacao {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Layout compacto para celular. */
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 18px 12px 34px;
+  }
+
+  .hero {
+    gap: 18px;
+    padding: 22px;
+  }
+
+  .hero-card {
+    min-height: 150px;
+  }
+
+  .hero-card strong {
+    font-size: 1.65rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .resumo-grid,
+  .forms-grid,
+  .mini-metricas {
+    grid-template-columns: 1fr;
+  }
+
+  .painel {
+    padding: 16px;
+  }
+
+  .indicador {
+    min-height: 116px;
+  }
+
+  .secao-titulo {
+    flex-direction: column;
+  }
+
+  .form-bloco-topo {
+    gap: 10px;
+  }
+
+  .botao {
+    width: 100%;
+  }
 }

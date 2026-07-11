@@ -12,6 +12,9 @@ obj/
 .vscode/*
 !.vscode/extensions.json
 
+# Obsidian local settings
+.obsidian/
+
 # Node / React
 node_modules/
 dist/

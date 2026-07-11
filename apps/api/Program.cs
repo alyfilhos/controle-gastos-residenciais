@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -13,6 +12,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
+// Permite requisições do frontend local.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
@@ -24,6 +24,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Configura o banco PostgreSQL com Entity Framework.
 builder.Services.AddDbContext<AppDbContexto>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -31,6 +32,7 @@ builder.Services.AddDbContext<AppDbContexto>(options =>
 
 var app = builder.Build();
 
+// Aplica migrations pendentes ao iniciar a API.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContexto>();
@@ -44,10 +46,12 @@ app.UseSwaggerUI();
 
 //app.UseHttpsRedirection();
 
+// Verifica se a API está respondendo.
 app.MapGet("/health", () => {
     return Results.Ok(new { status = "ok" });
 });
 
+// Verifica se a API consegue conectar ao banco.
 app.MapGet("/health/db", async (AppDbContexto db) => {
     var canConnect = await db.Database.CanConnectAsync();
 
@@ -58,9 +62,10 @@ app.MapGet("/health/db", async (AppDbContexto db) => {
     return Results.Ok(new { database = "ok" });
 });
 
-//GET PESSOAS
+// Lista todas as pessoas cadastradas.
 app.MapGet("/pessoas", async (AppDbContexto db) =>{
     var pessoas = await db.Pessoas
+        .AsNoTracking()
         .OrderBy(pessoa => pessoa.ID)
         .Select(pessoa => new
         {
@@ -73,11 +78,11 @@ app.MapGet("/pessoas", async (AppDbContexto db) =>{
     return Results.Ok(pessoas);
 });
 
-//POST PESSOA
+// Cadastra uma nova pessoa.
 app.MapPost("/pessoas", async (CriarPessoaDTO dto, AppDbContexto db) =>{
     if(string.IsNullOrWhiteSpace(dto.Nome)){
         return Results.BadRequest(new{
-            mensagem = "O nome da pessoa é obrigatório,"
+            mensagem = "O nome da pessoa é obrigatório."
         });
     }
 
@@ -101,7 +106,7 @@ app.MapPost("/pessoas", async (CriarPessoaDTO dto, AppDbContexto db) =>{
 
 });
 
-//DELETE PESSOA
+// Remove uma pessoa pelo ID.
 app.MapDelete("/pessoas/{id:int}", async (int id, AppDbContexto db) =>
 {
     var pessoa = await db.Pessoas.FindAsync(id);
@@ -119,11 +124,12 @@ app.MapDelete("/pessoas/{id:int}", async (int id, AppDbContexto db) =>
     return Results.NoContent();
 });
 
-//GET TRANSACOES
+// Lista todas as transações com a pessoa relacionada.
 app.MapGet("/transacoes", async (AppDbContexto db) =>
 {
     var transacoes = await db.Transacoes
-        .Include(transacao => transacao.Pessoa) //TRANSACAO + PESSOA RELACIONADA
+        .AsNoTracking()
+        .Include(transacao => transacao.Pessoa)
         .OrderBy(transacao => transacao.ID)
         .Select(transacao => new
         {
@@ -143,11 +149,10 @@ app.MapGet("/transacoes", async (AppDbContexto db) =>
     return Results.Ok(transacoes);
 });
 
-//POST TRANSACAO 
-//e pessoa vai ser carregada?
+// Cadastra uma nova transação.
 app.MapPost("/transacoes", async (CriarTransacaoDTO dto, AppDbContexto db) =>
 {
-    //verificações de segurança
+    // Valida os dados e regras de negócio.
     if (string.IsNullOrWhiteSpace(dto.Descricao))
     {
         return Results.BadRequest(new
@@ -188,9 +193,8 @@ app.MapPost("/transacoes", async (CriarTransacaoDTO dto, AppDbContexto db) =>
             mensagem = "Menores de idade não estão autorizados a ter transações de receita."
         });
     }
-    //Verificações feitas. 
 
-    //Criar transacao.
+    // Cria e salva a transação.
     var transacao = new Transacao
     {
         Descricao = dto.Descricao.Trim(),
@@ -218,7 +222,7 @@ app.MapPost("/transacoes", async (CriarTransacaoDTO dto, AppDbContexto db) =>
     });
 });
 
-//GET TOTAIS
+// Calcula totais por pessoa e o total geral.
 app.MapGet("/totais", async (AppDbContexto db) =>
 {
     var pessoas = await db.Pessoas
